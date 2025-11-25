@@ -1,0 +1,30 @@
+[
+  {
+    "date": "2025-02-02",
+    "theme": "Robotique médicale",
+    "titre": "Les robots chirurgicaux renforcent la précision au bloc opératoire",
+    "lien": "ttps://www.nature.com/articles/s41551-robot-surgery",
+    "description": "Les robots chirurgicaux de nouvelle génération, comme le Da Vinci Xi, permettent aujourd’hui d’effectuer des opérations moins invasives avec une précision accrue. Grâce aux systèmes de vision 3D et aux bras robotisés articulés, les chirurgiens peuvent réaliser des gestes plus sûrs et plus constants. Les études récentes montrent une diminution du temps de récupération post-opératoire et une réduction des risques de complications."
+  },
+  {
+    "date": "2025-03-02",
+    "theme": "Rééducation robotisée",
+    "titre": "La robotique réhabilitative révolutionne le suivi des patients AVC",
+    "lien": "https://www.sciencedirect.com/robotic-rehabilitation",
+    "description": "Les robots d’assistance à la rééducation, comme Lokomat ou ExoMotus, permettent d’accompagner la marche des patients après un AVC ou une blessure neurologique. Les dispositifs utilisent des modèles biomécaniques pour adapter l’entraînement à chaque patient. Les résultats démontrent une récupération plus rapide et une meilleure qualité de mouvement grâce à la répétition haute fréquence impossible en thérapie traditionnelle."
+  },
+  {
+    "date": "2025-01-21",
+    "theme": "Robots assistifs et IA",
+    "titre": "es robots infirmiers autonomes améliorent la prise en charge hospitalière",
+    "lien": "https://www.medtechnews.com/robot-nurse",
+    "description": "Les robots infirmiers, tels que Moxi, sont de plus en plus utilisés dans les hôpitaux pour transporter du matériel, gérer la logistique interne et assister les équipes soignantes. Ils permettent de réduire la charge de travail des infirmiers et d’optimiser les flux hospitaliers. Ces robots s’appuient sur l’IA pour naviguer dans des environnements complexes et interagir avec le personnel."
+  },
+  {
+    "date": "2025-02-08",
+    "theme": "Les robots sociaux comme soutien psychologique en milieu médical",
+    "titre": "Les robots soc",
+    "lien": "ttps://www.frontiersin.org/articles/robotic-social-care",
+    "description": "Les robots compagnons tels que PARO ou ElliQ sont utilisés dans les maisons de retraite et les services psychiatriques pour aider à réduire la solitude, stimuler la mémoire et améliorer le bien-être émotionnel. Ces robots sont équipés de capteurs tactiles et d’algorithmes comportementaux permettant d’interagir de manière expressive et personnalisée avec les patients."
+  }
+]
