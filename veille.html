@@ -1,194 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Veille Documentaire — Partagée</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(135deg,#0f172a,#1e293b); 
+      color:#e2e8f0; 
+      min-height: 100vh;
+    }
+    
+    .section-title { 
+      font-weight:800; 
+      font-size:2rem;
+      background: linear-gradient(90deg,#38bdf8,#818cf8); 
+      -webkit-background-clip:text; 
+      color:transparent; 
+    }
+    
+    .card-admin { 
+      background: #1e293b; 
+      border-radius: 16px; 
+      border: 1px solid #334155; 
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      margin-bottom: 2rem;
+    }
+    
+    .badge-key { 
+      background:#818cf8; 
+      padding:4px 8px; 
+      border-radius:8px; 
+      font-size:0.75rem; 
+      margin: 2px;
+      color:#fff; 
+      display: inline-block;
+    }
+    
+    /* Indicateur de statut */
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .status-online { background-color: #10b981; }
+    .status-offline { background-color: #ef4444; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="bi bi-share"></i> Veille Partagée
+      </a>
+      <div>
+        <span id="syncStatus" class="me-3">
+          <span class="status-indicator status-offline" id="statusDot"></span>
+          <small>Hors ligne</small>
+        </span>
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#shareModal">
+          <i class="bi bi-share-fill"></i> Partager
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h1 class="section-title text-center mb-4">📚 Veille Documentaire Collaborative</h1>
+    
+    <!-- Mode d'emploi -->
+    <div class="card-admin p-4 mb-4">
+      <h4><i class="bi bi-info-circle"></i> Comment partager cette veille ?</h4>
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <div class="text-center p-3">
+            <i class="bi bi-google text-warning" style="font-size: 2rem;"></i>
+            <h5 class="mt-2">Google Sheets</h5>
+            <p>Copiez vos données dans un Google Sheet public</p>
+            <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#sheetsModal">
+              Configurer
+            </button>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="text-center p-3">
+            <i class="bi bi-github text-light" style="font-size: 2rem;"></i>
+            <h5 class="mt-2">GitHub Pages</h5>
+            <p>Hébergez cette page gratuitement sur GitHub</p>
+            <a href="#github" class="btn btn-outline-light btn-sm">Voir guide</a>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="text-center p-3">
+            <i class="bi bi-file-earmark-text text-info" style="font-size: 2rem;"></i>
+            <h5 class="mt-2">Fichier statique</h5>
+            <p>Exportez et partagez le fichier HTML complet</p>
+            <button onclick="exportCompleteHTML()" class="btn btn-outline-info btn-sm">
+              <i class="bi bi-download"></i> Télécharger
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interface principale (identique à avant mais avec partage) -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card-admin p-4">
+          <h4><i class="bi bi-journal-text"></i> Articles récents</h4>
+          <div id="articlesList" class="mt-3">
+            <!-- Les articles apparaîtront ici -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card-admin p-4">
+          <h4><i class="bi bi-gear"></i> Administration</h4>
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#formCollapse">
+              <i class="bi bi-plus-circle"></i> Ajouter un article
+            </button>
+            <button onclick="exportToJSON()" class="btn btn-outline-light">
+              <i class="bi bi-download"></i> Exporter JSON
+            </button>
+            <button onclick="importFromJSON()" class="btn btn-outline-light">
+              <i class="bi bi-upload"></i> Importer JSON
+            </button>
+            <button onclick="generateShareableLink()" class="btn btn-success">
+              <i class="bi bi-link"></i> Générer un lien de partage
+            </button>
+          </div>
+          
+          <div class="mt-4">
+            <h6>Statistiques</h6>
+            <p>Articles: <span id="articleCount">0</span></p>
+            <p>Dernière modification: <span id="lastModified">-</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire d'ajout (collapsible) -->
+    <div class="collapse mt-4" id="formCollapse">
+      <div class="card-admin p-4">
+        <h4>Ajouter un article</h4>
+        <!-- Formulaire identique à la version précédente -->
+        <form id="articleForm" class="mt-3">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <input type="date" class="form-control bg-dark text-light" id="date" required>
+            </div>
+            <div class="col-md-9">
+              <input type="text" class="form-control bg-dark text-light" id="titre" placeholder="Titre" required>
+            </div>
+            <div class="col-12">
+              <textarea class="form-control bg-dark text-light" id="resume" rows="2" placeholder="Résumé" required></textarea>
+            </div>
+            <div class="col-md-6">
+              <input type="text" class="form-control bg-dark text-light" id="source" placeholder="Source" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" class="form-control bg-dark text-light" id="motscles" placeholder="Mots-clés (séparés par des virgules)" required>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour partager via Google Sheets -->
+  <div class="modal fade" id="sheetsModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-google"></i> Partage Google Sheets</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ol>
+            <li>Créez un <a href="https://sheets.new" target="_blank" class="text-warning">nouveau Google Sheet</a></li>
+            <li>Ajoutez ces en-têtes en première ligne:
+              <pre class="bg-black p-2 mt-2">Date,Titre,Source,Lien,Outil,Mots-clés,Résumé,Pays</pre>
+            </li>
+            <li>Cliquez sur "Partager" → "Modifier le lien" → "Toute personne avec le lien peut <strong>voir</strong>"</li>
+            <li>Copiez l'URL et collez-la ici:</li>
+            <input type="text" class="form-control bg-dark text-light mt-2" id="sheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+          </ol>
+          <button class="btn btn-warning w-100 mt-3" onclick="setupGoogleSheets()">
+            <i class="bi bi-check-circle"></i> Configurer le partage
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour générer un lien -->
+  <div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-link-45deg"></i> Partager votre veille</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <h6>Option 1: Export complet</h6>
+            <p>Téléchargez cette page avec toutes les données intégrées :</p>
+            <button onclick="exportCompleteHTML()" class="btn btn-outline-info w-100">
+              <i class="bi bi-download"></i> Télécharger le fichier HTML complet
+            </button>
+            <small class="text-muted">Partagez ce fichier par email, Drive, etc.</small>
+          </div>
+          
+          <div class="mb-3">
+            <h6>Option 2: Données seulement</h6>
+            <p>Exportez les données pour les importer ailleurs :</p>
+            <button onclick="exportToJSON()" class="btn btn-outline-light w-100 mb-2">JSON</button>
+            <button onclick="exportToCSV()" class="btn btn-outline-light w-100">CSV</button>
+          </div>
+          
+          <div>
+            <h6>Option 3: Hébergement gratuit</h6>
+            <p>Déployez sur GitHub Pages en 5 minutes :</p>
+            <a href="#githubGuide" class="btn btn-success w-100">
+              <i class="bi bi-github"></i> Voir le guide GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Données
+    let articles = [];
+    
+    // Charger depuis le localStorage
+    function loadData() {
+      const saved = localStorage.getItem('veilleData');
+      if (saved) {
+        articles = JSON.parse(saved);
+        displayArticles();
+      }
+    }
+    
+    // Sauvegarder
+    function saveData() {
+      localStorage.setItem('veilleData', JSON.stringify(articles));
+      updateStats();
+    }
+    
+    // Afficher les articles
+    function displayArticles() {
+      const container = document.getElementById('articlesList');
+      if (articles.length === 0) {
+        container.innerHTML = '<p class="text-muted">Aucun article pour le moment.</p>';
+        return;
+      }
+      
+      let html = '';
+      articles.sort((a,b) => new Date(b.date) - new Date(a.date));
+      
+      articles.slice(0, 10).forEach(article => {
+        const tags = article.motscles.split(',').map(t => 
+          `<span class="badge-key">${t.trim()}</span>`
+        ).join('');
+        
+        html += `
+          <div class="card bg-dark border-secondary mb-3">
+            <div class="card-body">
+              <h6>${article.titre}</h6>
+              <p class="small text-muted mb-2">
+                ${article.date} • ${article.source} • ${article.pays || 'International'}
+              </p>
+              <p class="mb-2">${article.resume}</p>
+              <div class="mb-2">${tags}</div>
+              <small class="text-info">${article.outil || ''}</small>
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    // Gérer le formulaire
+    document.getElementById('articleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const newArticle = {
+        date: document.getElementById('date').value,
+        titre: document.getElementById('titre').value,
+        source: document.getElementById('source').value,
+        lien: document.getElementById('lien')?.value || '',
+        outil: document.getElementById('outil')?.value || '',
+        motscles: document.getElementById('motscles').value,
+        resume: document.getElementById('resume').value,
+        pays: document.getElementById('pays')?.value || 'International'
+      };
+      
+      articles.push(newArticle);
+      saveData();
+      displayArticles();
+      this.reset();
+      document.getElementById('date').valueAsDate = new Date();
+      
+      alert('Article ajouté !');
+    });
+    
+    // Exporter le HTML COMPLET avec les données intégrées
+    function exportCompleteHTML() {
+      // Créer une copie du HTML actuel avec les données incluses
+      const dataBlob = new Blob([`
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Veille Documentaire — Nawell Medjahed</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <style>
-    body { font-family:'Inter',sans-serif; background: linear-gradient(135deg,#0f172a,#1e293b); color:#e2e8f0; }
-    .section-title { font-weight:800; font-size:2rem;
-      background: linear-gradient(90deg,#38bdf8,#818cf8); -webkit-background-clip:text; color:transparent; }
-    .table-container { background:#ffffff; border-radius:16px; padding:20px; box-shadow:0 12px 35px rgba(0,0,0,0.25); color:#0f172a;}
-    table thead { background: linear-gradient(90deg,#1e293b,#334155); color:#fff; }
-    table td, table th { vertical-align: middle; padding:12px; }
-    tbody tr:hover { background:#e0f2fe; transform:scale(1.01); box-shadow:0 4px 12px rgba(56,189,248,0.15); }
-    .badge-key { background:#818cf8; padding:5px 8px; border-radius:8px; font-size:0.75rem; margin-right:4px; color:#fff; }
-    a.link { font-weight:600; color:#0ea5e9; }
-    a.link:hover { color:#22c55e; text-decoration:underline; }
-    .small-muted { color:#6b7280; font-size:0.9rem; }
+    /* Copiez tous vos styles CSS ici */
+    body { font-family: Arial, sans-serif; background: #f5f5f5; }
+    .article { background: white; padding: 15px; margin: 10px; border-radius: 5px; }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark bg-dark shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">Nawell Medjahed</a>
-      <div>
-        <a class="nav-link d-inline text-light" href="#">Accueil</a>
-        <a class="nav-link d-inline text-light" href="#">Admin Veille</a>
+  <h1>Veille Documentaire — Robotique Médicale</h1>
+  <div id="articles">
+    ${articles.map(article => `
+      <div class="article">
+        <h3>${article.titre}</h3>
+        <p><strong>Date:</strong> ${article.date}</p>
+        <p><strong>Source:</strong> ${article.source}</p>
+        <p>${article.resume}</p>
+        <p><strong>Mots-clés:</strong> ${article.motscles}</p>
       </div>
-    </div>
-  </nav>
-
-  <section class="py-5">
-    <div class="container">
-      <h2 class="section-title text-center mb-3">✨ Veille Documentaire — Robotique Médicale (6 derniers mois)</h2>
-      <p id="lastUpdate" class="text-center small-muted mb-3"></p>
-
-      <div class="table-container">
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Titre</th>
-                <th>Source</th>
-                <th>Lien</th>
-                <th>Outil utilisé</th>
-                <th>Mots-clés</th>
-                <th>Résumé / Analyse</th>
-                <th>Pays</th>
-              </tr>
-            </thead>
-            <tbody id="articlesTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script>
-    // Données intégrées (10 articles récents <=) - remplis depuis la recherche
-    const articles = [
-      {
-        date: "2025-11-15",
-        titre: "The rise of robotics and AI-assisted surgery in modern healthcare (review)",
-        source: "PMC / Journal (review)",
-        lien: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12181090/",
-        outil: "PubMed / PMC",
-        motscles: "robotique, IA, chirurgie assistée",
-        description: "Revue synthétisant 25 études 2024–2025 : adoption croissante de la chirurgie robotique assistée par IA; gains de précision et réduction des complications mais défis HTA et coût.",
-        pays: "International"
-      },
-      {
-        date: "2025-10-30",
-        titre: "Comparable perioperative performance between three robotic systems for partial nephrectomy",
-        source: "Scientific Reports (Nature group)",
-        lien: "https://www.nature.com/articles/s41598-025-11434-8",
-        outil: "Nature / Scientific Reports",
-        motscles: "robotique chirurgicale, néphrectomie, da Vinci, évaluation",
-        description: "Étude prospective comparant systèmes robotiques (incluant da Vinci) : résultats péri-opératoires comparables — implication pour compétition industrielle et choix d'hôpital.",
-        pays: "Inde / International"
-      },
-      {
-        date: "2025-10-05",
-        titre: "A multi-perspective qualitative study on robotic-assisted surgery training and knowledge",
-        source: "Scientific Reports",
-        lien: "https://www.nature.com/articles/s41598-025-13323-6",
-        outil: "Nature / enquête qualitative",
-        motscles: "formation, compétences, chirurgie robotique",
-        description: "Analyse qualitative des besoins de formation en robotique chirurgicale ; souligne gap formation-sécurité et nécessité de modules standardisés.",
-        pays: "Royaume-Uni"
-      },
-      {
-        date: "2025-09-28",
-        titre: "Modeling and Simulation of Lower Limb Rehabilitation Exoskeletons",
-        source: "MDPI Robotics",
-        lien: "https://www.mdpi.com/2218-6581/14/10/143",
-        outil: "MDPI",
-        motscles: "exosquelette, rééducation, simulation",
-        description: "Travail de modélisation dédié aux exosquelettes de membre inférieur — utile pour design d'interfaces et algorithmes d'assistance adaptative.",
-        pays: "Pakistan"
-      },
-      {
-        date: "2025-09-10",
-        titre: "AGREE: an upper limb motorized exoskeleton for restoring motor function",
-        source: "Journal of NeuroEngineering and Rehabilitation (BMC)",
-        lien: "https://jneuroengrehab.biomedcentral.com/articles/10.1186/s12984-025-01651-7",
-        outil: "BMC / JNER",
-        motscles: "exosquelette, membre supérieur, rééducation",
-        description: "Présentation d’un exosquelette prototype (AGREE) : résultats prometteurs en restauration motrice et retour d'expérience d'utilisation clinique pilote.",
-        pays: "Italie"
-      },
-      {
-        date: "2025-11-01",
-        titre: "Health technology assessment of surgical robots: a mini-review",
-        source: "Frontiers in Public Health",
-        lien: "https://www.frontiersin.org/articles/10.3389/fpubh.2025.1672583/full",
-        outil: "Frontiers",
-        motscles: "HTA, coût, adoption, robotique chirurgicale",
-        description: "Mini-revue sur enjeux d’évaluation des robots chirurgicaux : coût élevé, impact organisationnel, besoin d’indicateurs cliniques et économiques standardisés.",
-        pays: "Chine / International"
-      },
-      {
-        date: "2025-08-20",
-        titre: "Medical robots learn to be autonomous",
-        source: "Science Robotics",
-        lien: "https://www.science.org/doi/10.1126/scirobotics.adz8291",
-        outil: "Science Robotics",
-        motscles: "autonomie, IA, robot médical",
-        description: "Article sur progrès d'autonomie robotique et intégration d'IA pour tâches médicales; défis réglementaires et validation clinique à grande échelle.",
-        pays: "États-Unis"
-      },
-      {
-        date: "2025-11-27",
-        titre: "Objective assessment of stress and surgical performance during laparoscopic and robot-assisted surgery",
-        source: "Surgical Endoscopy (Springer)",
-        lien: "https://link.springer.com/article/10.1007/s00464-025-12394-w",
-        outil: "Springer / Surgical Endoscopy",
-        motscles: "stress opérateur, performance, wearables",
-        description: "Étude mesurant stress physiologique et performance opératoire (laparoscopie vs robotique) : wearables utiles pour monitoring opérateur et sécurité patient.",
-        pays: "Pays-Bas"
-      },
-      {
-        date: "2025-06-09",
-        titre: "6 ways that robotics are transforming healthcare",
-        source: "World Economic Forum (article synthèse)",
-        lien: "https://www.weforum.org/stories/2025/06/robots-medical-industry-healthcare/",
-        outil: "WEF (veille / synthèse)",
-        motscles: "robotique, télésanté, pharmacie, rééducation",
-        description: "Synthèse pratique des usages (formation, rééducation, chirurgie, logistique) et tendances en adoption des robots en santé.",
-        pays: "International"
-      },
-      {
-        date: "2025-07-31",
-        titre: "AGREE-like: clinical pilot and outcome measures for upper-limb exoskeletons",
-        source: "J NeuroEngineering Rehabil (BMC) / complément",
-        lien: "https://jneuroengrehab.biomedcentral.com/articles/10.1186/s12984-025-01651-7",
-        outil: "ResearchGate / JNER mention",
-        motscles: "pilot clinique, exosquelette, outcome",
-        description: "Complément aux résultats AGREE : mesures cliniques utilisées dans pilote (durée session, gain fonctionnel), donne piste d'évaluation standardisée.",
-        pays: "Italie"
-      }
-             
-    ];
-
-    // Remplissage du tableau
-    const table = document.getElementById('articlesTable');
-    articles.forEach(a => {
-      const tags = a.motscles.split(',').map(t => `<span class="badge-key">${t.trim()}</span>`).join(' ');
-      const link = a.lien ? `<a class="link" href="${a.lien}" target="_blank">Voir</a>` : '';
-      const row = `
-        <tr>
-          <td>${a.date}</td>
-          <td><strong>${a.titre}</strong></td>
-          <td>${a.source}</td>
-          <td>${link}</td>
-          <td>${a.outil}</td>
-          <td>${tags}</td>
-          <td>${a.description}</td>
-          <td>${a.pays}</td>
-        </tr>`;
-      table.insertAdjacentHTML('beforeend', row);
+    `).join('')}
+  </div>
+  <p><em>Export généré le ${new Date().toLocaleDateString()}</em></p>
+</body>
+</html>
+      `], { type: 'text/html' });
+      
+      const url = URL.createObjectURL(dataBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'veille-documentaire-complete.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // Exporter JSON
+    function exportToJSON() {
+      const dataStr = JSON.stringify(articles, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'veille-documentaire.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // Exporter CSV
+    function exportToCSV() {
+      let csv = 'Date,Titre,Source,Lien,Outil,Mots-clés,Résumé,Pays\\n';
+      articles.forEach(article => {
+        csv += `"${article.date}","${article.titre}","${article.source}","${article.lien}","${article.outil}","${article.motscles}","${article.resume}","${article.pays}"\\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'veille-documentaire.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // Importer JSON
+    function importFromJSON() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function() {
+          articles = JSON.parse(reader.result);
+          saveData();
+          displayArticles();
+          alert(`${articles.length} articles importés !`);
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+    
+    // Mettre à jour les statistiques
+    function updateStats() {
+      document.getElementById('articleCount').textContent = articles.length;
+      document.getElementById('lastModified').textContent = new Date().toLocaleDateString();
+    }
+    
+    // Initialiser
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      document.getElementById('date').valueAsDate = new Date();
+      updateStats();
     });
-
-    document.getElementById('lastUpdate').textContent = "Dernière mise à jour : " + articles[0].date;
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
