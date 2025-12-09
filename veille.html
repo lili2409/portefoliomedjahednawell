@@ -3,30 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Veille Documentaire — Synchronisée</title>
+  <title>Veille Documentaire — Gestion Complète</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
   <style>
+    :root {
+      --primary: #38bdf8;
+      --secondary: #818cf8;
+      --dark: #0f172a;
+      --darker: #1e293b;
+    }
+    
     body { 
       font-family: 'Inter', sans-serif; 
-      background: linear-gradient(135deg,#0f172a,#1e293b); 
+      background: linear-gradient(135deg, var(--dark), var(--darker)); 
       color:#e2e8f0; 
       min-height: 100vh;
+      padding-bottom: 50px;
     }
     
     .section-title { 
       font-weight:800; 
       font-size:2rem;
-      background: linear-gradient(90deg,#38bdf8,#818cf8); 
+      background: linear-gradient(90deg, var(--primary), var(--secondary)); 
       -webkit-background-clip:text; 
       color:transparent; 
     }
     
     .card-admin { 
-      background: #1e293b; 
+      background: var(--darker); 
       border-radius: 16px; 
       border: 1px solid #334155; 
       box-shadow: 0 12px 35px rgba(0,0,0,0.25);
@@ -34,7 +42,7 @@
     }
     
     .badge-key { 
-      background:#818cf8; 
+      background: var(--secondary); 
       padding:4px 8px; 
       border-radius:8px; 
       font-size:0.75rem; 
@@ -51,323 +59,757 @@
       color:#0f172a;
       overflow: hidden;
     }
+    
+    table thead { 
+      background: linear-gradient(90deg, var(--darker), #334155); 
+      color:#fff; 
+    }
+    
+    table td, table th { 
+      vertical-align: middle; 
+      padding:12px; 
+    }
+    
+    tbody tr:hover { 
+      background:#e0f2fe; 
+      transition: all 0.2s;
+    }
+    
+    .form-control-dark { 
+      background: var(--dark);
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      border-radius: 8px;
+    }
+    
+    .form-control-dark:focus { 
+      background: var(--dark);
+      border-color: var(--primary);
+      color: #e2e8f0;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    
+    .btn-action { 
+      padding: 5px 10px;
+      margin: 2px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    
+    .btn-edit { 
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-delete { 
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-primary-gradient { 
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    
+    .btn-primary-gradient:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+    }
+    
+    .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .alert-floating {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      min-width: 300px;
+      animation: slideIn 0.3s ease-out;
+      display: none;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark bg-dark shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">
-        <i class="bi bi-share"></i> Veille Synchronisée
-      </a>
-      <div>
-        <button class="btn btn-outline-warning btn-sm me-2" onclick="generateShareableFile()">
-          <i class="bi bi-download"></i> Générer fichier partageable
-        </button>
-        <button class="btn btn-outline-info btn-sm" onclick="loadSharedFile()">
-          <i class="bi bi-upload"></i> Charger fichier partagé
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <div class="container py-5">
-    <h1 class="section-title text-center mb-4">📚 Veille Documentaire — Synchronisée</h1>
-    
-    <!-- Instructions -->
-    <div class="card-admin p-4 mb-4">
-      <h4><i class="bi bi-info-circle"></i> Comment synchroniser entre plusieurs personnes ?</h4>
-      
-      <div class="row mt-3">
-        <div class="col-md-6">
-          <div class="p-3 border rounded mb-3">
-            <h5><i class="bi bi-person-check"></i> Pour partager VOS articles :</h5>
-            <ol>
-              <li>Ajoutez/modifiez vos articles</li>
-              <li>Cliquez sur <strong>"Générer fichier partageable"</strong></li>
-              <li>Envoyez le fichier HTML par email/Drive</li>
-            </ol>
-            <button class="btn btn-warning w-100" onclick="generateShareableFile()">
-              <i class="bi bi-download"></i> Générer fichier
-            </button>
-          </div>
-        </div>
-        
-        <div class="col-md-6">
-          <div class="p-3 border rounded mb-3">
-            <h5><i class="bi bi-people"></i> Pour recevoir des articles :</h5>
-            <ol>
-              <li>Recevez un fichier HTML d'un collègue</li>
-              <li>Cliquez sur <strong>"Charger fichier partagé"</strong></li>
-              <li>Sélectionnez le fichier reçu</li>
-              <li>Les articles s'ajouteront aux vôtres</li>
-            </ol>
-            <button class="btn btn-info w-100" onclick="loadSharedFile()">
-              <i class="bi bi-upload"></i> Charger fichier
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="alert alert-info mt-3">
-        <i class="bi bi-lightbulb"></i> <strong>Astuce :</strong> Désignez une personne comme "maître" qui génère le fichier final que tout le monde utilise.
-      </div>
-    </div>
-
-    <!-- Interface standard de gestion -->
-    <!-- ... (le reste de votre interface) ... -->
+  <!-- Alerte flottante -->
+  <div id="alertMessage" class="alert alert-success alert-floating" role="alert">
+    Message ici
   </div>
 
-  <script>
-    // DONNÉES COURANTES (locale)
-    let articles = [];
-    
-    // CHARGER depuis localStorage
-    function loadLocalData() {
-      const saved = localStorage.getItem('veilleData');
-      if (saved) {
-        articles = JSON.parse(saved);
-        displayArticles();
-      }
-    }
-    
-    // SAUVEGARDER dans localStorage
-    function saveLocalData() {
-      localStorage.setItem('veilleData', JSON.stringify(articles));
-    }
-    
-    // GÉNÉRER un fichier HTML PARTAGEABLE
-    function generateShareableFile() {
-      // Créer un fichier HTML complet avec les données intégrées
-      const htmlContent = `
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Veille Documentaire Partagée — ${new Date().toLocaleDateString('fr-FR')}</title>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-  <style>
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background: linear-gradient(135deg,#0f172a,#1e293b); 
-      color:#e2e8f0; 
-      min-height: 100vh;
-    }
-    
-    .section-title { 
-      font-weight:800; 
-      font-size:2rem;
-      background: linear-gradient(90deg,#38bdf8,#818cf8); 
-      -webkit-background-clip:text; 
-      color:transparent; 
-    }
-    
-    .table-container { 
-      background:#ffffff; 
-      border-radius:16px; 
-      padding:20px; 
-      box-shadow:0 12px 35px rgba(0,0,0,0.15); 
-      color:#0f172a;
-      overflow: hidden;
-    }
-    
-    .badge-key { 
-      background:#818cf8; 
-      padding:4px 8px; 
-      border-radius:8px; 
-      font-size:0.75rem; 
-      margin: 2px;
-      color:#fff; 
-      display: inline-block;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar navbar-dark bg-dark shadow-sm">
+  <nav class="navbar navbar-dark bg-dark shadow-sm sticky-top">
     <div class="container">
       <a class="navbar-brand fw-bold" href="#">
-        <i class="bi bi-share"></i> Veille Documentaire Partagée
+        <i class="bi bi-journal-text"></i> Veille Documentaire
       </a>
-      <div class="text-light">
-        ${articles.length} articles | ${new Date().toLocaleDateString('fr-FR')}
+      <div>
+        <span class="text-light me-3">Nawell Medjahed</span>
+        <button class="btn btn-outline-light btn-sm" onclick="toggleForm()" id="toggleBtn">
+          <i class="bi bi-plus-circle"></i> Ajouter un article
+        </button>
       </div>
     </div>
   </nav>
 
   <div class="container py-5">
-    <h1 class="section-title text-center mb-4">📚 Veille Documentaire Partagée</h1>
-    
+    <h1 class="section-title text-center mb-4">📚 Veille Documentaire — Robotique Médicale</h1>
+    <p id="lastUpdate" class="text-center text-muted mb-4"></p>
+
+    <!-- Formulaire d'ajout (visible par défaut pour faciliter l'ajout) -->
+    <div id="formContainer" class="mb-5">
+      <div class="card-admin p-4">
+        <h4 class="d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-plus-circle"></i> Ajouter un nouvel article</span>
+          <button class="btn btn-sm btn-outline-light" onclick="toggleForm()">
+            <i class="bi bi-chevron-up"></i>
+          </button>
+        </h4>
+        
+        <form id="articleForm" class="mt-3">
+          <input type="hidden" id="editIndex" value="-1">
+          
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Date *</label>
+              <input type="date" class="form-control form-control-dark" id="date" required>
+            </div>
+            
+            <div class="col-md-9">
+              <label class="form-label">Titre *</label>
+              <input type="text" class="form-control form-control-dark" id="titre" required placeholder="Titre de l'article">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Source *</label>
+              <input type="text" class="form-control form-control-dark" id="source" required placeholder="Journal, site web...">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Outil utilisé</label>
+              <input type="text" class="form-control form-control-dark" id="outil" placeholder="PubMed, Google Scholar...">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Pays</label>
+              <input type="text" class="form-control form-control-dark" id="pays" placeholder="France, USA, International...">
+            </div>
+            
+            <div class="col-md-8">
+              <label class="form-label">Lien (URL)</label>
+              <input type="url" class="form-control form-control-dark" id="lien" placeholder="https://...">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Mots-clés *</label>
+              <input type="text" class="form-control form-control-dark" id="motscles" required placeholder="robotique, IA, chirurgie (séparés par des virgules)">
+            </div>
+            
+            <div class="col-12">
+              <label class="form-label">Résumé / Analyse *</label>
+              <textarea class="form-control form-control-dark" id="resume" rows="3" required placeholder="Résumé de l'article..."></textarea>
+            </div>
+            
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary-gradient me-2">
+                <i class="bi bi-check-circle"></i> Valider l'ajout
+              </button>
+              <button type="button" class="btn btn-outline-light" onclick="resetForm()">
+                <i class="bi bi-x-circle"></i> Réinitialiser
+              </button>
+              <span class="ms-3 text-muted">* Champs obligatoires</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card-admin p-3 text-center">
+          <h3 id="articleCount">0</h3>
+          <small class="text-muted">Articles au total</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card-admin p-3 text-center">
+          <h3 id="recentCount">0</h3>
+          <small class="text-muted">Articles récents (30j)</small>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card-admin p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Actions rapides</h6>
+            <div>
+              <button onclick="exportToJSON()" class="btn btn-outline-light btn-sm me-1">
+                <i class="bi bi-download"></i> JSON
+              </button>
+              <button onclick="exportToCSV()" class="btn btn-outline-light btn-sm me-1">
+                <i class="bi bi-filetype-csv"></i> CSV
+              </button>
+              <button onclick="exportCompleteHTML()" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-filetype-html"></i> HTML
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau des articles -->
     <div class="table-container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-list"></i> Liste des articles</h5>
+        <div class="btn-group" role="group">
+          <button class="btn btn-outline-dark btn-sm" onclick="sortByDate()">Trier par date</button>
+          <button class="btn btn-outline-dark btn-sm" onclick="showAll()">Tout afficher</button>
+          <button class="btn btn-outline-dark btn-sm" onclick="showRecent()">30 derniers jours</button>
+        </div>
+      </div>
+      
       <div class="table-responsive">
         <table class="table table-bordered align-middle">
           <thead>
             <tr>
-              <th>Date</th>
+              <th width="90">Date</th>
               <th>Titre</th>
-              <th>Source</th>
-              <th>Mots-clés</th>
-              <th>Résumé</th>
-              <th>Pays</th>
+              <th width="120">Source</th>
+              <th width="80">Lien</th>
+              <th width="120">Actions</th>
             </tr>
           </thead>
-          <tbody id="articlesList">
-            ${articles.map(article => `
-              <tr>
-                <td><strong>${article.date}</strong></td>
-                <td>
-                  <strong>${article.titre}</strong><br>
-                  <small class="text-muted">${article.source}</small>
-                </td>
-                <td>${article.source}</td>
-                <td>
-                  ${article.motscles.split(',').map(t => 
-                    `<span class="badge-key">${t.trim()}</span>`
-                  ).join(' ')}
-                </td>
-                <td>${article.resume}</td>
-                <td>${article.pays || 'International'}</td>
-              </tr>
-            `).join('')}
+          <tbody id="articlesTable">
+            <!-- Rempli par JavaScript -->
           </tbody>
         </table>
       </div>
       
-      <div class="text-center mt-4">
-        <p class="text-muted">
-          Fichier généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}<br>
-          ${articles.length} articles
-        </p>
+      <div class="text-center mt-3" id="noArticles" style="display: none;">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Aucun article pour le moment. Ajoutez votre premier article !
+        </div>
       </div>
     </div>
   </div>
-</body>
-</html>
+
+  <!-- Bouton flottant pour ajouter -->
+  <button class="btn btn-primary-gradient floating-btn" onclick="scrollToForm()">
+    <i class="bi bi-plus-lg"></i>
+  </button>
+
+  <!-- Modal pour voir les détails -->
+  <div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title">Détails de l'article</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalDetails">
+          <!-- Détails chargés dynamiquement -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // DONNÉES DE BASE - VOS ARTICLES
+    let articles = [
+      {
+        date: "2025-11-15",
+        titre: "The rise of robotics and AI-assisted surgery in modern healthcare (review)",
+        source: "PMC / Journal (review)",
+        lien: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12181090/",
+        outil: "PubMed / PMC",
+        motscles: "robotique, IA, chirurgie assistée",
+        resume: "Revue synthétisant 25 études 2024–2025 : adoption croissante de la chirurgie robotique assistée par IA; gains de précision et réduction des complications mais défis HTA et coût.",
+        pays: "International"
+      },
+      {
+        date: "2025-10-30",
+        titre: "Comparable perioperative performance between three robotic systems for partial nephrectomy",
+        source: "Scientific Reports (Nature group)",
+        lien: "https://www.nature.com/articles/s41598-025-11434-8",
+        outil: "Nature / Scientific Reports",
+        motscles: "robotique chirurgicale, néphrectomie, da Vinci, évaluation",
+        resume: "Étude prospective comparant systèmes robotiques (incluant da Vinci) : résultats péri-opératoires comparables — implication pour compétition industrielle et choix d'hôpital.",
+        pays: "Inde / International"
+      },
+      {
+        date: "2025-10-05",
+        titre: "A multi-perspective qualitative study on robotic-assisted surgery training and knowledge",
+        source: "Scientific Reports",
+        lien: "https://www.nature.com/articles/s41598-025-13323-6",
+        outil: "Nature / enquête qualitative",
+        motscles: "formation, compétences, chirurgie robotique",
+        resume: "Analyse qualitative des besoins de formation en robotique chirurgicale ; souligne gap formation-sécurité et nécessité de modules standardisés.",
+        pays: "Royaume-Uni"
+      },
+      {
+        date: "2025-09-28",
+        titre: "Modeling and Simulation of Lower Limb Rehabilitation Exoskeletons",
+        source: "MDPI Robotics",
+        lien: "https://www.mdpi.com/2218-6581/14/10/143",
+        outil: "MDPI",
+        motscles: "exosquelette, rééducation, simulation",
+        resume: "Travail de modélisation dédié aux exosquelettes de membre inférieur — utile pour design d'interfaces et algorithmes d'assistance adaptative.",
+        pays: "Pakistan"
+      },
+      {
+        date: "2025-09-10",
+        titre: "AGREE: an upper limb motorized exoskeleton for restoring motor function",
+        source: "Journal of NeuroEngineering and Rehabilitation (BMC)",
+        lien: "https://jneuroengrehab.biomedcentral.com/articles/10.1186/s12984-025-01651-7",
+        outil: "BMC / JNER",
+        motscles: "exosquelette, membre supérieur, rééducation",
+        resume: "Présentation d'un exosquelette prototype (AGREE) : résultats prometteurs en restauration motrice et retour d'expérience d'utilisation clinique pilote.",
+        pays: "Italie"
+      },
+      {
+        date: "2025-11-01",
+        titre: "Health technology assessment of surgical robots: a mini-review",
+        source: "Frontiers in Public Health",
+        lien: "https://www.frontiersin.org/articles/10.3389/fpubh.2025.1672583/full",
+        outil: "Frontiers",
+        motscles: "HTA, coût, adoption, robotique chirurgicale",
+        resume: "Mini-revue sur enjeux d'évaluation des robots chirurgicaux : coût élevé, impact organisationnel, besoin d'indicateurs cliniques et économiques standardisés.",
+        pays: "Chine / International"
+      },
+      {
+        date: "2025-08-20",
+        titre: "Medical robots learn to be autonomous",
+        source: "Science Robotics",
+        lien: "https://www.science.org/doi/10.1126/scirobotics.adz8291",
+        outil: "Science Robotics",
+        motscles: "autonomie, IA, robot médical",
+        resume: "Article sur progrès d'autonomie robotique et intégration d'IA pour tâches médicales; défis réglementaires et validation clinique à grande échelle.",
+        pays: "États-Unis"
+      },
+      {
+        date: "2025-11-27",
+        titre: "Objective assessment of stress and surgical performance during laparoscopic and robot-assisted surgery",
+        source: "Surgical Endoscopy (Springer)",
+        lien: "https://link.springer.com/article/10.1007/s00464-025-12394-w",
+        outil: "Springer / Surgical Endoscopy",
+        motscles: "stress opérateur, performance, wearables",
+        resume: "Étude mesurant stress physiologique et performance opératoire (laparoscopie vs robotique) : wearables utiles pour monitoring opérateur et sécurité patient.",
+        pays: "Pays-Bas"
+      },
+      {
+        date: "2025-06-09",
+        titre: "6 ways that robotics are transforming healthcare",
+        source: "World Economic Forum (article synthèse)",
+        lien: "https://www.weforum.org/stories/2025/06/robots-medical-industry-healthcare/",
+        outil: "WEF (veille / synthèse)",
+        motscles: "robotique, télésanté, pharmacie, rééducation",
+        resume: "Synthèse pratique des usages (formation, rééducation, chirurgie, logistique) et tendances en adoption des robots en santé.",
+        pays: "International"
+      },
+      {
+        date: "2025-07-31",
+        titre: "AGREE-like: clinical pilot and outcome measures for upper-limb exoskeletons",
+        source: "J NeuroEngineering Rehabil (BMC) / complément",
+        lien: "https://jneuroengrehab.biomedcentral.com/articles/10.1186/s12984-025-01651-7",
+        outil: "ResearchGate / JNER mention",
+        motscles: "pilot clinique, exosquelette, outcome",
+        resume: "Complément aux résultats AGREE : mesures cliniques utilisées dans pilote (durée session, gain fonctionnel), donne piste d'évaluation standardisée.",
+        pays: "Italie"
+      }
+    ];
+
+    // ==================== FONCTIONS ====================
+
+    // Afficher un message d'alerte
+    function showAlert(message, type = 'success') {
+      const alert = document.getElementById('alertMessage');
+      alert.textContent = message;
+      alert.className = `alert alert-${type} alert-floating`;
+      alert.style.display = 'block';
+      
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 3000);
+    }
+
+    // Charger depuis le localStorage
+    function loadFromStorage() {
+      const saved = localStorage.getItem('veilleArticles');
+      if (saved) {
+        try {
+          articles = JSON.parse(saved);
+        } catch (e) {
+          console.error('Erreur de chargement:', e);
+        }
+      }
+    }
+
+    // Sauvegarder dans le localStorage
+    function saveToStorage() {
+      localStorage.setItem('veilleArticles', JSON.stringify(articles));
+    }
+
+    // Afficher les articles
+    function displayArticles() {
+      const tbody = document.getElementById('articlesTable');
+      const noArticles = document.getElementById('noArticles');
+      
+      if (articles.length === 0) {
+        tbody.innerHTML = '';
+        noArticles.style.display = 'block';
+        updateStats();
+        return;
+      }
+      
+      noArticles.style.display = 'none';
+      tbody.innerHTML = '';
+      
+      // Trier par date (récent en premier)
+      articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      articles.forEach((article, index) => {
+        const tags = article.motscles.split(',').map(t => 
+          `<span class="badge-key">${t.trim()}</span>`
+        ).join('');
+        
+        const link = article.lien ? 
+          `<a href="${article.lien}" target="_blank" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-link-45deg"></i> Lien
+          </a>` : 
+          '<span class="text-muted">-</span>';
+        
+        const row = `
+          <tr>
+            <td><strong>${article.date}</strong></td>
+            <td>
+              <div class="fw-bold">${article.titre}</div>
+              <small class="text-muted">${article.outil || ''} • ${article.pays || 'International'}</small>
+              <div class="mt-1">${tags}</div>
+            </td>
+            <td>${article.source}</td>
+            <td class="text-center">${link}</td>
+            <td>
+              <button onclick="viewDetails(${index})" class="btn-action btn-edit" title="Voir détails">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button onclick="editArticle(${index})" class="btn-action btn-edit" title="Modifier">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button onclick="deleteArticle(${index})" class="btn-action btn-delete" title="Supprimer">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+      
+      updateStats();
+    }
+
+    // Mettre à jour les statistiques
+    function updateStats() {
+      document.getElementById('articleCount').textContent = articles.length;
+      
+      // Compter les articles des 30 derniers jours
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentArticles = articles.filter(a => new Date(a.date) >= thirtyDaysAgo);
+      document.getElementById('recentCount').textContent = recentArticles.length;
+      
+      if (articles.length > 0) {
+        const latest = articles.reduce((a, b) => 
+          new Date(a.date) > new Date(b.date) ? a : b
+        );
+        document.getElementById('lastUpdate').innerHTML = 
+          `<i class="bi bi-calendar-check"></i> Dernière mise à jour : ${latest.date} | ${articles.length} articles`;
+      } else {
+        document.getElementById('lastUpdate').innerHTML = 
+          `<i class="bi bi-calendar-check"></i> Aucun article pour le moment`;
+      }
+    }
+
+    // Voir les détails
+    function viewDetails(index) {
+      const article = articles[index];
+      const modal = document.getElementById('modalDetails');
+      
+      modal.innerHTML = `
+        <h5>${article.titre}</h5>
+        <p><strong>Date :</strong> ${article.date}</p>
+        <p><strong>Source :</strong> ${article.source}</p>
+        <p><strong>Outil :</strong> ${article.outil || 'Non spécifié'}</p>
+        <p><strong>Pays :</strong> ${article.pays || 'International'}</p>
+        <p><strong>Mots-clés :</strong> ${article.motscles}</p>
+        <p><strong>Résumé :</strong></p>
+        <p>${article.resume}</p>
+        ${article.lien ? `<p><strong>Lien :</strong> <a href="${article.lien}" target="_blank" class="text-info">${article.lien}</a></p>` : ''}
       `;
       
-      // Télécharger le fichier
-      const blob = new Blob([htmlContent], { type: 'text/html' });
+      new bootstrap.Modal(document.getElementById('detailsModal')).show();
+    }
+
+    // Modifier un article
+    function editArticle(index) {
+      const article = articles[index];
+      
+      // Remplir le formulaire
+      document.getElementById('editIndex').value = index;
+      document.getElementById('date').value = article.date;
+      document.getElementById('titre').value = article.titre;
+      document.getElementById('source').value = article.source;
+      document.getElementById('lien').value = article.lien || '';
+      document.getElementById('outil').value = article.outil || '';
+      document.getElementById('motscles').value = article.motscles;
+      document.getElementById('resume').value = article.resume;
+      document.getElementById('pays').value = article.pays || '';
+      
+      // Scroller vers le formulaire
+      scrollToForm();
+      showAlert('Article chargé pour modification', 'info');
+    }
+
+    // Supprimer un article
+    function deleteArticle(index) {
+      if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
+        const deleted = articles.splice(index, 1);
+        saveToStorage();
+        displayArticles();
+        showAlert(`Article "${deleted[0].titre.substring(0, 50)}..." supprimé`, 'danger');
+      }
+    }
+
+    // Réinitialiser le formulaire
+    function resetForm() {
+      document.getElementById('articleForm').reset();
+      document.getElementById('editIndex').value = '-1';
+      document.getElementById('date').valueAsDate = new Date();
+      showAlert('Formulaire réinitialisé', 'info');
+    }
+
+    // Basculer l'affichage du formulaire
+    function toggleForm() {
+      const form = document.getElementById('formContainer');
+      const btn = document.getElementById('toggleBtn');
+      
+      if (form.style.display === 'none') {
+        form.style.display = 'block';
+        btn.innerHTML = '<i class="bi bi-dash-circle"></i> Masquer le formulaire';
+      } else {
+        form.style.display = 'none';
+        btn.innerHTML = '<i class="bi bi-plus-circle"></i> Ajouter un article';
+      }
+    }
+
+    // Scroller vers le formulaire
+    function scrollToForm() {
+      document.getElementById('formContainer').style.display = 'block';
+      document.getElementById('toggleBtn').innerHTML = '<i class="bi bi-dash-circle"></i> Masquer le formulaire';
+      document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('titre').focus();
+    }
+
+    // Tri par date
+    function sortByDate() {
+      articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+      displayArticles();
+      showAlert('Articles triés par date (récent en premier)', 'info');
+    }
+
+    // Afficher tout
+    function showAll() {
+      displayArticles();
+      showAlert('Tous les articles affichés', 'info');
+    }
+
+    // Afficher les 30 derniers jours
+    function showRecent() {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const filtered = articles.filter(a => new Date(a.date) >= thirtyDaysAgo);
+      
+      const tbody = document.getElementById('articlesTable');
+      tbody.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        showAlert('Aucun article des 30 derniers jours', 'warning');
+        return;
+      }
+      
+      filtered.forEach((article, index) => {
+        const tags = article.motscles.split(',').map(t => 
+          `<span class="badge-key">${t.trim()}</span>`
+        ).join('');
+        
+        const link = article.lien ? 
+          `<a href="${article.lien}" target="_blank" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-link-45deg"></i> Lien
+          </a>` : 
+          '<span class="text-muted">-</span>';
+        
+        const row = `
+          <tr>
+            <td><strong>${article.date}</strong></td>
+            <td>
+              <div class="fw-bold">${article.titre}</div>
+              <small class="text-muted">${article.outil || ''} • ${article.pays || 'International'}</small>
+              <div class="mt-1">${tags}</div>
+            </td>
+            <td>${article.source}</td>
+            <td class="text-center">${link}</td>
+            <td>
+              <button onclick="viewDetails(${articles.indexOf(article)})" class="btn-action btn-edit">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button onclick="editArticle(${articles.indexOf(article)})" class="btn-action btn-edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button onclick="deleteArticle(${articles.indexOf(article)})" class="btn-action btn-delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+      
+      showAlert(`${filtered.length} articles des 30 derniers jours`, 'info');
+    }
+
+    // ==================== GESTION DU FORMULAIRE ====================
+
+    document.getElementById('articleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const index = parseInt(document.getElementById('editIndex').value);
+      const isEdit = index !== -1;
+      
+      // Validation
+      const date = document.getElementById('date').value;
+      const titre = document.getElementById('titre').value.trim();
+      const source = document.getElementById('source').value.trim();
+      const motscles = document.getElementById('motscles').value.trim();
+      const resume = document.getElementById('resume').value.trim();
+      
+      if (!date || !titre || !source || !motscles || !resume) {
+        showAlert('Veuillez remplir tous les champs obligatoires', 'danger');
+        return;
+      }
+      
+      const newArticle = {
+        date: date,
+        titre: titre,
+        source: source,
+        lien: document.getElementById('lien').value.trim(),
+        outil: document.getElementById('outil').value.trim(),
+        motscles: motscles,
+        resume: resume,
+        pays: document.getElementById('pays').value.trim() || "International"
+      };
+      
+      if (isEdit) {
+        // Modification
+        articles[index] = newArticle;
+        showAlert('Article modifié avec succès !', 'success');
+      } else {
+        // Nouvel article
+        articles.push(newArticle);
+        showAlert('Article ajouté avec succès !', 'success');
+      }
+      
+      saveToStorage();
+      displayArticles();
+      
+      // Réinitialiser le formulaire
+      this.reset();
+      document.getElementById('editIndex').value = '-1';
+      document.getElementById('date').valueAsDate = new Date();
+    });
+
+    // ==================== EXPORT ====================
+
+    function exportToJSON() {
+      const dataStr = JSON.stringify(articles, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `veille-documentaire-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showAlert('Export JSON terminé', 'success');
+    }
+
+    function exportToCSV() {
+      let csv = 'Date,Titre,Source,Lien,Outil,Mots-clés,Résumé,Pays\n';
+      
+      articles.forEach(article => {
+        const row = [
+          article.date,
+          `"${article.titre.replace(/"/g, '""')}"`,
+          `"${article.source.replace(/"/g, '""')}"`,
+          `"${article.lien}"`,
+          `"${article.outil}"`,
+          `"${article.motscles}"`,
+          `"${article.resume.replace(/"/g, '""')}"`,
+          `"${article.pays}"`
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `veille-partagee-${new Date().toISOString().split('T')[0]}.html`;
+      a.download = `veille-documentaire-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      
-      alert(`Fichier généré avec ${articles.length} articles !\nPartagez ce fichier avec vos collègues.`);
+      showAlert('Export CSV terminé', 'success');
     }
-    
-    // CHARGER un fichier partagé
-    function loadSharedFile() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.html,.txt,.json';
-      
-      input.onchange = function(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function() {
-          // Essayer d'extraire les données du fichier HTML
-          const content = reader.result;
-          
-          // Méthode 1 : Chercher du JSON dans le fichier
-          const jsonMatch = content.match(/let articles = (\[.*?\])/s);
-          
-          if (jsonMatch && jsonMatch[1]) {
-            try {
-              const importedArticles = JSON.parse(jsonMatch[1]);
-              
-              // Fusionner avec les articles existants (éviter les doublons)
-              importedArticles.forEach(newArticle => {
-                // Vérifier si l'article existe déjà
-                const exists = articles.some(existing => 
-                  existing.titre === newArticle.titre && 
-                  existing.date === newArticle.date
-                );
-                
-                if (!exists) {
-                  articles.push(newArticle);
-                }
-              });
-              
-              saveLocalData();
-              displayArticles();
-              
-              alert(`${importedArticles.length} articles chargés (doublons évités)`);
-              
-            } catch (err) {
-              alert('Erreur de parsing JSON : ' + err.message);
-            }
-          } else {
-            // Méthode 2 : Demander à l'utilisateur de copier-coller le JSON
-            const jsonData = prompt(
-              'Impossible d\'extraire automatiquement. ' +
-              'Collez les données JSON manuellement :',
-              ''
-            );
-            
-            if (jsonData) {
-              try {
-                const importedArticles = JSON.parse(jsonData);
-                articles = articles.concat(importedArticles);
-                saveLocalData();
-                displayArticles();
-                alert(`${importedArticles.length} articles ajoutés !`);
-              } catch (err) {
-                alert('Données JSON invalides');
-              }
-            }
-          }
-        };
-        
-        reader.readAsText(file);
-      };
-      
-      input.click();
-    }
-    
-    // Solution ALTERNATIVE : Données dans un fichier JSON séparé
-    function setupJSONFileSharing() {
-      alert(`Pour une synchronisation facile :
 
-1. Créez un fichier JSON sur Google Drive/Dropbox
-2. Mettez-y vos articles au format JSON
-3. Partagez le lien en lecture seule
-4. Chacun peut importer depuis ce lien
-
-Format JSON :
-[
-  {
-    "date": "2025-11-15",
-    "titre": "...",
-    "source": "...",
-    "lien": "...",
-    "outil": "...",
-    "motscles": "...",
-    "resume": "...",
-    "pays": "..."
-  }
-]`);
+    function exportCompleteHTML() {
+      // Code d'export HTML complet...
+      showAlert('Export HTML disponible (fonction à implémenter)', 'info');
     }
-    
-    // Initialisation
+
+    // ==================== INITIALISATION ====================
+
     document.addEventListener('DOMContentLoaded', function() {
-      loadLocalData();
-      
-      // Si pas d'articles, charger les données par défaut
-      if (articles.length === 0) {
-        articles = [
-          // Vos articles par défaut...
-        ];
-        saveLocalData();
-      }
-      
+      loadFromStorage();
       displayArticles();
+      
+      // Définir la date d'aujourd'hui par défaut
+      const today = new Date();
+      document.getElementById('date').value = today.toISOString().split('T')[0];
+      
+      // Focus sur le champ titre
+      document.getElementById('titre').focus();
+      
+      console.log('Application chargée avec', articles.length, 'articles');
     });
   </script>
 </body>
 </html>
+
